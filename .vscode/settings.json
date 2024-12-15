@@ -1,0 +1,27 @@
+{
+    "C_Cpp.default.compilerPath": "/usr/bin/clang",
+    "C_Cpp.codeAnalysis.clangTidy.checks.disabled": [
+        "readability-braces-around-statements",
+        "google-readability-braces-around-statements",
+        "cppcoreguidelines-owning-memory",
+        "cppcoreguidelines-pro-type-vararg",
+        "cppcoreguidelines-avoid-non-const-global-variables",
+        "cppcoreguidelines-pro-bounds-pointer-arithmetic",
+        "cppcoreguidelines-pro-bounds-constant-array-index",
+        "bugprone-easily-swappable-parameters",
+        "bugprone-exception-escape",
+        "cppcoreguidelines-avoid-magic-numbers",
+        "readability-magic-numbers",
+        "readability-identifier-length",
+        "google-explicit-constructor",
+        "cppcoreguidelines-pro-bounds-array-to-pointer-decay",
+        "cppcoreguidelines-avoid-c-arrays",
+        "cppcoreguidelines-macro-usage",
+        "cppcoreguidelines-no-malloc",
+        "readability-function-cognitive-complexity",
+        "readability-avoid-const-params-in-decls"
+    ],
+    "files.associations": {
+        "array": "cpp"
+    }
+}
