@@ -1,49 +1,55 @@
-# Makefile for compiling app/mapper.cpp with sources in src directory
-# The compiled binary will be placed in the build directory and then copied to the bin directory
-
-# Compiler
-CXX := g++
+# Compiler and flags
+CC = g++
+CFLAGS = -O2 -std=c++20
+CFLAGS += -Wall -Wextra -Wpedantic -Werror -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-but-set-variable -Wno-unused-value -Wno-unused-local-typedefs
 
 # Directories
-SRC_DIR := src
-APP_DIR := app
-BUILD_DIR := build
-BIN_DIR := bin
+SRC_DIR = src
+APP_DIR = app
+BIN_DIR = bin
+BUILD_DIR = build
+
+CFLAGS += -I$(SRC_DIR)
+
+# Targets
+TARGETS = mapper index
 
 # Source files
-SRC_FILES := $(wildcard $(SRC_DIR)/*.cpp)
-APP_FILE := $(APP_DIR)/mapper.cpp
+MAPPER_SRC = $(wildcard $(SRC_DIR)/*.cpp $(APP_DIR)/mapper.cpp)
+INDEX_SRC = $(wildcard $(SRC_DIR)/*.cpp $(APP_DIR)/index.cpp)
 
-# Output binary
-BUILD_OUTPUT := $(BUILD_DIR)/mapper
-BIN_OUTPUT := $(BIN_DIR)/mapper
+# Object files
+MAPPER_OBJ = $(patsubst %.cpp, $(BUILD_DIR)/%.o, $(notdir $(MAPPER_SRC)))
+INDEX_OBJ = $(patsubst %.cpp, $(BUILD_DIR)/%.o, $(notdir $(INDEX_SRC)))
 
-# Include directories
-INCLUDE_DIRS := -I$(SRC_DIR)
-
-# Compiler flags
-CXXFLAGS := -Wall -Werror -std=c++20 $(INCLUDE_DIRS)
-
-# Create build and bin directories if they don't exist
-$(BUILD_DIR):
-	mkdir -p $(BUILD_DIR)
-
-$(BIN_DIR):
-	mkdir -p $(BIN_DIR)
-
-# Build target
-$(BUILD_OUTPUT): $(SRC_FILES) $(APP_FILE) | $(BUILD_DIR)
-	$(CXX) $(CXXFLAGS) -o $@ $^
-
-# Copy target
-$(BIN_OUTPUT): $(BUILD_OUTPUT) | $(BIN_DIR)
-	cp $< $@
-
-# Clean target
-.PHONY: clean
-clean:
-	rm -rf $(BUILD_DIR) $(BIN_DIR)
+# Ensure directories exist
+$(BIN_DIR) $(BUILD_DIR):
+	mkdir -p $@
 
 # Default target
-.PHONY: all
-all: $(BIN_OUTPUT)
+all: $(BIN_DIR) $(BUILD_DIR) $(addprefix $(BIN_DIR)/, $(TARGETS))
+
+# Build mapper executable
+$(BIN_DIR)/mapper: $(MAPPER_OBJ) | $(BIN_DIR)
+	$(CC) $(CFLAGS) -o $@ $^
+
+# Build index executable
+$(BIN_DIR)/index: $(INDEX_OBJ) | $(BIN_DIR)
+	$(CC) $(CFLAGS) -o $@ $^
+
+# Compile source files into object files
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/%.o: $(APP_DIR)/%.cpp | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Clean up build files
+clean:
+	rm -f $(BUILD_DIR)/*.o $(BIN_DIR)/*
+
+.PHONY: all clean mapper index
+
+mapper: $(BIN_DIR)/mapper
+
+index: $(BIN_DIR)/index
