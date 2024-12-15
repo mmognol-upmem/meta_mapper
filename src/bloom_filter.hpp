@@ -14,12 +14,11 @@
 
 constexpr uint64_t PMASK32 = (1UL << 32) - 1;
 using hash_t = uint32_t;
-using pack_t = uint64_t;
 
-template <size_t S>
+template <typename T, size_t S>
 consteval auto generate_bit_mask()
 {
-    std::array<pack_t, S> mask{};
+    std::array<T, S> mask{};
     for (size_t i = 0; i < S; i++)
     {
         mask[i] = 1UL << i;
@@ -34,7 +33,7 @@ consteval auto generate_bit_mask()
 class MultiBloomFilter
 {
 private:
-    using PackType = uint64_t;
+    using pack_t = uint64_t;
 
 public:
     MultiBloomFilter() {}
@@ -76,23 +75,9 @@ private:
     size_t m_size_reduced{};
     size_t m_sub_size{};
 
-    std::vector<PackType> _data;
+    std::vector<pack_t> m_data{};
 
-    template <size_t size>
-    struct BitMask
-    {
-        std::array<PackType, size> mask;
-        constexpr BitMask() : mask()
-        {
-            for (size_t i = 0; i < size; i++)
-            {
-                mask[i] = 1UL << i;
-            }
-        }
-        auto operator[](size_t idx) const { return mask[idx]; }
-    };
-
-    static constexpr auto m_bit_mask = generate_bit_mask<m_pack_size>();
+    static constexpr auto m_bit_mask = generate_bit_mask<pack_t, m_pack_size>();
     static constexpr size_t m_CONTAINS_RESERVE = 8;
     static constexpr size_t m_BLOCK_SIZE2 = 6;
     static constexpr size_t m_BLOCK_SIZE = (1 << m_BLOCK_SIZE2);

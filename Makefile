@@ -2,6 +2,8 @@
 CC = g++
 CFLAGS = -O2 -std=c++20
 CFLAGS += -Wall -Wextra -Wpedantic -Werror -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-but-set-variable -Wno-unused-value -Wno-unused-local-typedefs
+#add arch flags needed
+CFLAGS += -mpopcnt -msse -msse2 -msse3 -msse4 -msse4.1 -msse4.2 -mavx -mavx2 -mbmi -mbmi2
 
 # Directories
 SRC_DIR = src
