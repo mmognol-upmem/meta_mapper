@@ -1,10 +1,10 @@
 #include "bloom_filter.hpp"
 
-void MultiBloomFilter::initialize(const size_t nb_filters, const size_t size2)
+void MultiBloomFilter::initialize(const ssize_t nb_filters, const ssize_t size2)
 {
     m_nb_filters = nb_filters;
     m_size2 = size2;
-    m_size = 1UL << m_size2;
+    m_size = 1L << m_size2;
     m_size_reduced = m_size - 1;
     m_sub_size = (m_nb_filters + m_pack_size - 1) >> m_pack_size2;
     m_data.resize(m_size * m_sub_size, static_cast<pack_t>(0));
@@ -22,23 +22,39 @@ void MultiBloomFilter::insert(const size_t idx, const hash_t hash)
     }
 }
 
+template <typename T>
+void write(const T &data, std::ofstream &out)
+{
+    if constexpr (requires { data.size(); })
+        out.write(reinterpret_cast<const char *>(data.data()), data.size() * sizeof(typename T::value_type));
+    else
+        out.write(reinterpret_cast<const char *>(&data), sizeof(data));
+}
+
+template <typename T>
+void read(T &data, std::ifstream &in)
+{
+    if constexpr (requires { data.size(); })
+        in.read(reinterpret_cast<char *>(data.data()), data.size() * sizeof(typename T::value_type));
+    else
+        in.read(reinterpret_cast<char *>(&data), sizeof(data));
+}
+
 void MultiBloomFilter::save_to_file(std::string file_path)
 {
-    std::ofstream out;
-    out.open(file_path);
-    out.write(reinterpret_cast<const char *>(&m_nb_filters), sizeof(m_nb_filters));
-    out.write(reinterpret_cast<const char *>(&m_size2), sizeof(m_size2));
-    out.write(reinterpret_cast<const char *>(m_data.data()), m_size * m_sub_size * sizeof(pack_t));
+    std::ofstream out(file_path, std::ios::binary);
+    write(m_nb_filters, out);
+    write(m_size2, out);
+    write(m_data, out);
     out.close();
 }
 
 void MultiBloomFilter::load_from_file(std::string file_path)
 {
-    std::ifstream in;
-    in.open(file_path);
-    in.read(reinterpret_cast<char *>(&m_nb_filters), sizeof(m_nb_filters));
-    in.read(reinterpret_cast<char *>(&m_size2), sizeof(m_size2));
+    std::ifstream in(file_path, std::ios::binary);
+    read(m_nb_filters, in);
+    read(m_size2, in);
     initialize(m_nb_filters, m_size2);
-    in.read(reinterpret_cast<char *>(m_data.data()), m_size * m_sub_size * sizeof(pack_t));
+    read(m_data, in);
     in.close();
 }

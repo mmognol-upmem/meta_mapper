@@ -41,7 +41,7 @@ public:
     /// @brief Multi Bloom filter data structure with 3 hash functions
     /// @param nb_filters number of filters
     /// @param size2 power of 2 to use for the size of each filter that will be 2^size2
-    void initialize(const size_t nb_filters, const size_t size2);
+    void initialize(const ssize_t nb_filters, const ssize_t size2);
 
     /// @brief Insert one item in one of the filters
     /// @param idx idx of the filter to insert in
@@ -65,15 +65,15 @@ public:
     double weight() const;
 
 private:
-    static constexpr size_t m_pack_size2 = 6;
+    static constexpr ssize_t m_pack_size2 = 6;
 
-    static constexpr size_t m_pack_size = 1 << m_pack_size2;
+    static constexpr ssize_t m_pack_size = 1 << m_pack_size2;
 
-    size_t m_nb_filters{};
-    size_t m_size2{};
-    size_t m_size{};
-    size_t m_size_reduced{};
-    size_t m_sub_size{};
+    ssize_t m_nb_filters{};
+    ssize_t m_size2{};
+    ssize_t m_size{};
+    ssize_t m_size_reduced{};
+    ssize_t m_sub_size{};
 
     std::vector<pack_t> m_data;
 
