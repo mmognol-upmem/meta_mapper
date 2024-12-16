@@ -10,12 +10,11 @@ cxxopts::ParseResult parse_mapper(int argc, char *argv[])
         "r,reference", "URI to reference genome (e.g. 'file://genome.fa' or 'file://genome_album.txt')",
         cxxopts::value<std::string>())("U,queries", "Path to queries file", cxxopts::value<std::string>())(
         "k,ranks", "Number of PIM ranks", cxxopts::value<ssize_t>()->default_value("4"))(
-        "b,bloom", "Force reconstruction of Bloom filter", cxxopts::value<bool>()->default_value("false"))(
         "s,sam", "Path of output in SAM format", cxxopts::value<bool>()->default_value("false"))("h,help", "Print usage");
 
     auto result = options.parse(argc, argv);
 
-    if (result.count("help") > 0 || result.arguments().empty())
+    if (result.count("help") > 0 || result.count("reference") == 0 || result.count("ranks") == 0 || result.count("sam") == 0)
         exit(printf("%s\n", options.help().c_str()));
 
     return result;
