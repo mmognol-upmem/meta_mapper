@@ -3,9 +3,9 @@
 #include "file_utils.hpp"
 #include "graal/Bank.hpp"
 
-std::string generate_bloom_file_path(const std::string &reference_uri, size_t nb_ranks, size_t hash_size)
+std::string generate_bloom_file_path(const std::string &reference_uri, size_t nb_dpu, size_t hash_size)
 {
-    return reference_uri + "_k" + std::to_string(nb_ranks) + "_s" +
+    return reference_uri + "_d" + std::to_string(nb_dpu) + "_s" +
            std::to_string(hash_size) + std::string(BLOOM_FILTER_EXTENSION);
 }
 
@@ -51,7 +51,32 @@ Reference load_reference(graal::Bank &reference_bank, ssize_t nb_ranks)
             revcomp_ref.append(seq);
         } });
 
+    N_to_G_read(reference.seq);
     complement_read(revcomp_ref);
+    reference.seq.append(revcomp_ref);
+
+    return reference;
+}
+
+CompactReference load_and_compress_reference(graal::Bank &reference_bank, ssize_t nb_ranks)
+{
+    CompactReference reference{};
+    CompactSequence revcomp_ref{};
+
+    auto ref_estimated_size = check_reference_estimated_size(reference_bank, nb_ranks);
+
+    reference.seq.reserve((ref_estimated_size * 3) / 2); // Reserve a little more to be sure to not reallocate
+    revcomp_ref.reserve(reference.seq.capacity() / 2);
+
+    reference_bank.visit([&reference, &revcomp_ref](auto bank)
+                         {
+		for (auto &seq : bank) {
+			auto n = seq.size();
+            reference.seq.append(seq);
+            reference.names.push_back({seq.name(), reference.seq.size() - n, n});
+            revcomp_ref.append_revcomp(seq);
+        } });
+
     reference.seq.append(revcomp_ref);
 
     return reference;

@@ -11,7 +11,7 @@ ssize_t ceil_log2(ssize_t x)
     return ceil(log(static_cast<double>(x)) / log(2));
 }
 
-std::vector<ssize_t> fill_bloom_filters(MultiBloomFilter &bloom_filters, const Reference &ref_read, ssize_t nb_dpu, ssize_t dpu_ref_size, ssize_t overlap)
+std::vector<ssize_t> fill_bloom_filters(MultiBloomFilter &bloom_filters, const CompactReference &ref_read, ssize_t nb_dpu, ssize_t dpu_ref_size, ssize_t overlap)
 {
     constexpr ssize_t build_nr_threads = 16;
     std::vector<ssize_t> nb_signatures(build_nr_threads, 0);
@@ -53,7 +53,7 @@ std::vector<ssize_t> fill_bloom_filters(MultiBloomFilter &bloom_filters, const R
     return nb_signatures;
 }
 
-MultiBloomFilter build_bloom_filters(const Reference &ref_read, ssize_t nb_dpu, ssize_t dpu_ref_size, ssize_t overlap)
+MultiBloomFilter build_bloom_filters(const CompactReference &ref_read, ssize_t nb_dpu, ssize_t dpu_ref_size, ssize_t overlap)
 {
     auto bloom_size2 = ceil_log2(dpu_ref_size * 8);
     MultiBloomFilter bloom_filters{};

@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include "compact_sequence.hpp"
+
 consteval std::array<char, 256> make_complement_table()
 {
     std::array<char, 256> comp{};
@@ -26,9 +28,17 @@ constexpr char complement(char c)
     return COMP_TABLE[static_cast<unsigned char>(c)];
 }
 
-constexpr char N_to_A(char c)
+constexpr char N_to_G(char c)
 {
-    return c == 'N' ? 'A' : c;
+    return c == 'N' ? 'G' : c;
+}
+
+inline void N_to_G_read(std::string &seq)
+{
+    for (auto &c : seq)
+    {
+        c = N_to_G(c);
+    }
 }
 
 inline void complement_read(std::string &seq)
@@ -61,7 +71,21 @@ struct Reference
     std::vector<SequenceMetadata> names;
 };
 
+struct CompactReference
+{
+    CompactSequence seq;
+    std::vector<SequenceMetadata> names;
+};
+
 inline void print_reference_names(const Reference &reference)
+{
+    for (const auto &name : reference.names)
+    {
+        printf("\t%s\n", name.name.c_str());
+    }
+}
+
+inline void print_reference_names(const CompactReference &reference)
 {
     for (const auto &name : reference.names)
     {

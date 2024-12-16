@@ -19,7 +19,7 @@ public:
     }
 
     // Static member functions to compute the hash
-    static constexpr hash_t hash(const Reference &read, const size_t start_pos)
+    static constexpr hash_t hash(const CompactReference &read, const size_t start_pos)
     {
         hash_t val = HASH_INIT_VALUE;
         for (size_t i = start_pos; i < HashSize + start_pos; ++i)
