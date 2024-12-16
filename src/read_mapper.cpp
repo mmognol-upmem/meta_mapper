@@ -1,5 +1,6 @@
 #include <cmath>
 #include <omp.h>
+#include <algorithm>
 
 #include "pim_shared.hpp"
 #include "read.hpp"
@@ -12,10 +13,10 @@ ssize_t ceil_log2(ssize_t x)
     return ceil(log(static_cast<double>(x)) / log(2));
 }
 
-std::vector<ssize_t> fill_bloom_filters(MultiBloomFilter &bloom_filter, Read &ref_read, ssize_t nb_dpu, ssize_t dpu_ref_size, ssize_t overlap)
+std::vector<ssize_t> fill_bloom_filters(MultiBloomFilter &bloom_filters, Read &ref_read, ssize_t nb_dpu, ssize_t dpu_ref_size, ssize_t overlap)
 {
     constexpr ssize_t build_nr_threads = 16;
-    std::vector<size_t> nb_signatures(build_nr_threads, 0);
+    std::vector<ssize_t> nb_signatures(build_nr_threads, 0);
 
 #pragma omp parallel for schedule(dynamic) num_threads(build_nr_threads)
     for (size_t dpu_id = 0; dpu_id < nb_dpu; ++dpu_id)
@@ -33,7 +34,7 @@ std::vector<ssize_t> fill_bloom_filters(MultiBloomFilter &bloom_filter, Read &re
         for (size_t i = start; i < start + dpu_ref_size - HASH_SIZE; ++i)
         {
             if (is_good_seed(bases))
-                sigs.emplace_back(bloom_filter.place_mask(dpu_id, Signature<HASH_SIZE>::hash(ref_read, i)));
+                sigs.emplace_back(bloom_filters.place_mask(dpu_id, Signature<HASH_SIZE>::hash(ref_read, i)));
 
             bases[0] = bases[1];
             bases[1] = bases[2];
@@ -46,7 +47,7 @@ std::vector<ssize_t> fill_bloom_filters(MultiBloomFilter &bloom_filter, Read &re
 
         for (const auto &[place, mask] : sigs)
         {
-            _bloom_filters.insert_computed(place, mask); // Relevant signature
+            bloom_filters.insert_computed(place, mask); // Relevant signature
             nb_signatures[tid]++;
         }
     }
@@ -54,10 +55,16 @@ std::vector<ssize_t> fill_bloom_filters(MultiBloomFilter &bloom_filter, Read &re
     return nb_signatures;
 }
 
-void build_bloom_filters(Read &ref_read, ssize_t nb_dpu, ssize_t dpu_ref_size, ssize_t overlap)
+MultiBloomFilter build_bloom_filters(Read &ref_read, ssize_t nb_dpu, ssize_t dpu_ref_size, ssize_t overlap)
 {
     auto bloom_size2 = ceil_log2(dpu_ref_size * 8);
     MultiBloomFilter bloom_filters{};
     bloom_filters.initialize(nb_dpu, bloom_size2);
-    auto nb_signatures = fill_bloom_filters(ref_read, nb_dpu, dpu_ref_size, overlap);
+    auto nb_signatures = fill_bloom_filters(bloom_filters, ref_read, nb_dpu, dpu_ref_size, overlap);
+    return bloom_filters;
+}
+
+void serialize_bloom_filters(const MultiBloomFilter &bloom_filters, const std::string &bloom_file_path)
+{
+    bloom_filters.save_to_file(bloom_file_path);
 }

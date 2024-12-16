@@ -48,7 +48,7 @@ void MultiBloomFilter::insert(const size_t idx, const hash_t hash)
     }
 }
 
-void MultiBloomFilter::save_to_file(std::string file_path)
+void MultiBloomFilter::save_to_file(std::string file_path) const
 {
     std::ofstream out(file_path, std::ios::binary);
     write(m_nb_filters, out);
@@ -65,4 +65,23 @@ void MultiBloomFilter::load_from_file(std::string file_path)
     initialize(m_nb_filters, m_size2);
     read(m_data, in);
     in.close();
+}
+
+/**
+ * @brief Computes the place and mask for a given index and hash.
+ *
+ * @param idx The index to be used.
+ * @param hash The hash value to be used.
+ * @return A pair containing the place and mask.
+ */
+std::pair<uint64_t, uint64_t> MultiBloomFilter::place_mask(const size_t idx, const hash_t hash) const
+{
+    auto i = idx >> m_pack_size2;
+    auto h = hash & m_size_reduced;
+    return {h * m_sub_size + i, m_bit_mask[idx & (m_pack_size - 1)]};
+}
+
+void MultiBloomFilter::insert_computed(const uint64_t place, const uint64_t mask)
+{
+    __sync_fetch_and_or(m_data.data() + place, mask);
 }

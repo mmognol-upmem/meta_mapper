@@ -52,11 +52,14 @@ public:
 
     /// @brief Save the data into a file
     /// @param file_path path of the file
-    void save_to_file(std::string file_path);
+    void save_to_file(std::string file_path) const;
 
     /// @brief Load from a file
     /// @param file_path pafth of the file
     void load_from_file(std::string file_path);
+
+    std::pair<uint64_t, uint64_t> place_mask(const size_t idx, const hash_t hash) const;
+    void insert_computed(const uint64_t place, const uint64_t mask);
 
     /// @brief Return size2 of the filters
     /// @return size2
