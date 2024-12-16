@@ -2,3 +2,4 @@ bin/*
 build/*
 .vscode/c_cpp_properties.json
 *.bin
+*.json

@@ -1,15 +1,18 @@
+#ifndef FILE_UTILS_HPP
+#define FILE_UTILS_HPP
+
 #include <filesystem>
 #include <string>
 
+#include "read.hpp"
+
+#include "graal/Bank.hpp"
+
 constexpr std::string_view BLOOM_FILTER_EXTENSION = ".bf.bin";
 
-std::string generate_bloom_file_path(const std::string &reference_uri, size_t nb_ranks, size_t hash_size)
-{
-    return reference_uri + "_k" + std::to_string(nb_ranks) + "_s" +
-           std::to_string(hash_size) + std::string(BLOOM_FILTER_EXTENSION);
-}
+Reference load_reference(graal::Bank &reference_bank, ssize_t nb_ranks);
+std::string validate_reference_file(const std::string &reference_uri);
+std::string generate_bloom_file_path(const std::string &reference_uri, size_t nb_ranks, size_t hash_size);
+bool check_bloom_file_exists(const std::string &bloom_file_path, bool force_create_bloom);
 
-bool check_bloom_file_exists(const std::string &bloom_file_path, bool force_create_bloom)
-{
-    return !force_create_bloom && std::filesystem::exists(bloom_file_path);
-}
+#endif // FILE_UTILS_HPP

@@ -18,6 +18,17 @@ public:
         return val;
     }
 
+    // Static member functions to compute the hash
+    static constexpr hash_t hash(const Reference &read, const size_t start_pos)
+    {
+        hash_t val = HASH_INIT_VALUE;
+        for (size_t i = start_pos; i < HashSize + start_pos; ++i)
+        {
+            val = ((val << 5) + val) + read.seq[i];
+        }
+        return val;
+    }
+
     // Static member functions to compute two hashes
     static constexpr std::pair<hash_t, hash_t> hash(const Read &read, const size_t start_pos, const size_t start_pos2)
     {
@@ -35,5 +46,5 @@ public:
     static constexpr size_t hash_size() { return HashSize; }
 
 private:
-    static const hash_t HASH_INIT_VALUE;
+    static constexpr hash_t HASH_INIT_VALUE = 5381;
 };

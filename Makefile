@@ -3,7 +3,9 @@ CC = g++
 CFLAGS = -O2 -std=c++20
 CFLAGS += -Wall -Wextra -Wpedantic -Werror -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-but-set-variable -Wno-unused-value -Wno-unused-local-typedefs
 #add arch flags needed
-CFLAGS += -mpopcnt -msse -msse2 -msse3 -msse4 -msse4.1 -msse4.2 -mavx -mavx2 -mbmi -mbmi2
+CFLAGS += -mpopcnt -msse -msse2 -msse3 -msse4 -msse4.1 -msse4.2 -mavx -mavx2 -mbmi -mbmi2 -fopenmp
+
+LDFLAGS = -lz
 
 # Directories
 SRC_DIR = src
@@ -12,7 +14,7 @@ APP_DIR = app
 BIN_DIR = bin
 BUILD_DIR = build
 
-CFLAGS += -I$(SRC_DIR) -I$(LIB_DIR)/cxxopts/
+CFLAGS += -I$(SRC_DIR) -I$(LIB_DIR)/cxxopts/ -I$(LIB_DIR)/org.inria.graal/src
 
 # Targets
 TARGETS = mapper index
@@ -34,11 +36,11 @@ all: $(BIN_DIR) $(BUILD_DIR) $(addprefix $(BIN_DIR)/, $(TARGETS))
 
 # Build mapper executable
 $(BIN_DIR)/mapper: $(MAPPER_OBJ) | $(BIN_DIR)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 # Build index executable
 $(BIN_DIR)/index: $(INDEX_OBJ) | $(BIN_DIR)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 # Compile source files into object files
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp | $(BUILD_DIR)
