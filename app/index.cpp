@@ -39,6 +39,7 @@ int main(int argc, char *argv[])
 
     // Create a new BloomFilter object
     auto bf = build_bloom_filters(reference, nb_dpu, dpu_ref_size, overlap);
+    printf("Bloom filter size: %lu\n", bf.get_size2());
 
     auto bloom_file = generate_bloom_file_path(reference_file, nb_dpu, HASH_SIZE);
 
