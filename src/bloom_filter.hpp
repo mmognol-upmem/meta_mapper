@@ -75,7 +75,7 @@ private:
     size_t m_size_reduced{};
     size_t m_sub_size{};
 
-    std::vector<pack_t> m_data{};
+    std::vector<pack_t> m_data;
 
     static constexpr auto m_bit_mask = generate_bit_mask<pack_t, m_pack_size>();
     static constexpr size_t m_CONTAINS_RESERVE = 8;
