@@ -46,8 +46,9 @@ Reference load_reference(graal::Bank &reference_bank, ssize_t nb_ranks)
                          {
 		for (auto &seq : bank) {
 			auto n = seq.size();
+            auto start = reference.seq.size();
             reference.seq.append(seq);
-            reference.names.push_back({seq.name(), reference.seq.size() - n, n});
+            reference.names.push_back({seq.name(), start, n});
             revcomp_ref.append(seq);
         } });
 
