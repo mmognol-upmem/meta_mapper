@@ -1,5 +1,31 @@
 #include "bloom_filter.hpp"
 
+/* -------------------------------------------------------------------------- */
+/*                              utils functions                               */
+/* -------------------------------------------------------------------------- */
+
+template <typename T>
+void write(const T &data, std::ofstream &out)
+{
+    if constexpr (requires { data.size(); })
+        out.write(reinterpret_cast<const char *>(data.data()), data.size() * sizeof(typename T::value_type));
+    else
+        out.write(reinterpret_cast<const char *>(&data), sizeof(data));
+}
+
+template <typename T>
+void read(T &data, std::ifstream &in)
+{
+    if constexpr (requires { data.size(); })
+        in.read(reinterpret_cast<char *>(data.data()), data.size() * sizeof(typename T::value_type));
+    else
+        in.read(reinterpret_cast<char *>(&data), sizeof(data));
+}
+
+/* -------------------------------------------------------------------------- */
+/*                          MultiBloomFilter implem                           */
+/* -------------------------------------------------------------------------- */
+
 void MultiBloomFilter::initialize(const ssize_t nb_filters, const ssize_t size2)
 {
     m_nb_filters = nb_filters;
@@ -20,24 +46,6 @@ void MultiBloomFilter::insert(const size_t idx, const hash_t hash)
         auto mask = m_bit_mask[idx & (m_pack_size - 1)];
         __sync_fetch_and_or(m_data.data() + h * m_sub_size + i, mask);
     }
-}
-
-template <typename T>
-void write(const T &data, std::ofstream &out)
-{
-    if constexpr (requires { data.size(); })
-        out.write(reinterpret_cast<const char *>(data.data()), data.size() * sizeof(typename T::value_type));
-    else
-        out.write(reinterpret_cast<const char *>(&data), sizeof(data));
-}
-
-template <typename T>
-void read(T &data, std::ifstream &in)
-{
-    if constexpr (requires { data.size(); })
-        in.read(reinterpret_cast<char *>(data.data()), data.size() * sizeof(typename T::value_type));
-    else
-        in.read(reinterpret_cast<char *>(&data), sizeof(data));
 }
 
 void MultiBloomFilter::save_to_file(std::string file_path)
