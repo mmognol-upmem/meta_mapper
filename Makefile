@@ -7,11 +7,12 @@ CFLAGS += -mpopcnt -msse -msse2 -msse3 -msse4 -msse4.1 -msse4.2 -mavx -mavx2 -mb
 
 # Directories
 SRC_DIR = src
+LIB_DIR = thirdparty
 APP_DIR = app
 BIN_DIR = bin
 BUILD_DIR = build
 
-CFLAGS += -I$(SRC_DIR)
+CFLAGS += -I$(SRC_DIR) -I$(LIB_DIR)/cxxopts/
 
 # Targets
 TARGETS = mapper index

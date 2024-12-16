@@ -1,7 +1,10 @@
 #include "bloom_filter.hpp"
+#include "parse_command.hpp"
 
 int main(int argc, char *argv[])
 {
+    auto parsed = parse_mapper(argc, argv);
+
     // Create a new BloomFilter object
     MultiBloomFilter bf{};
     // Initialize the BloomFilter object with 1 filter and size2 of 10
