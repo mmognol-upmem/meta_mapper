@@ -68,7 +68,7 @@ void serialize_bloom_filters(const MultiBloomFilter &bloom_filters, const std::s
 
 ssize_t get_reference_size(CompactReference &reference)
 {
-    ssize_t reference_size = static_cast<ssize_t>(reference.seq.seq_size());
+    ssize_t reference_size = static_cast<ssize_t>(reference.seq.size());
     if (reference_size == 0)
         exit(printf("Reference sequence is empty\n"));
 
