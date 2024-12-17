@@ -1,7 +1,8 @@
 #ifndef C09A039F_60F7_4F0B_8F46_F4397CAEB0CE
 #define C09A039F_60F7_4F0B_8F46_F4397CAEB0CE
 
-extern "C" {
+extern "C"
+{
 #include <stdint.h>
 }
 
@@ -18,7 +19,8 @@ extern "C" {
 /// @param n value
 /// @return true if value is a power of 2, false otherwise
 template <typename T>
-constexpr bool IS_POWER_2(T n) {
+constexpr bool IS_POWER_2(T n)
+{
 	return (n & (n - 1)) == 0;
 }
 
@@ -28,7 +30,8 @@ constexpr bool IS_POWER_2(T n) {
 /// @param value number to round up
 /// @return next multiple of N
 template <unsigned int N, typename T>
-constexpr T CEILN(T value) {
+constexpr T CEILN(T value)
+{
 	static_assert(IS_POWER_2(N), "N must be a power of 2");
 	return (value + (N - 1)) & ~(N - 1);
 }
@@ -39,7 +42,8 @@ constexpr T CEILN(T value) {
 /// @param value number to round down
 /// @return previous multiple of N
 template <unsigned int N, typename T>
-constexpr T FLOORN(T value) {
+constexpr T FLOORN(T value)
+{
 	static_assert(IS_POWER_2(N), "N must be a power of 2");
 	return value & ~(N - 1);
 }
@@ -50,7 +54,8 @@ constexpr T FLOORN(T value) {
 /// @param size number to divide by N
 /// @return remainder of the division
 template <unsigned int N, typename T>
-constexpr T REMAINDERN(T value) {
+constexpr T REMAINDERN(T value)
+{
 	static_assert(IS_POWER_2(N), "N must be a power of 2");
 	return value & (N - 1);
 }
@@ -78,37 +83,43 @@ static_assert(MAX_NB_ERRORS <= 8, "Not supporting to find more than 8 errors dur
 
 /* ------------------------- Communication utilities ------------------------ */
 
-struct IndexArgs {
+struct IndexArgs
+{
 	uint64_t seq_size;
 };
 
-struct MapArgs {
+struct MapArgs
+{
 	uint8_t queries[MAX_NB_QUERIES_PER_DPU * (MAX_QUERY_SIZE >> 2)];
 	uint32_t seed_positions[MAX_NB_QUERIES_PER_DPU];
 	uint8_t query_sizes[MAX_NB_QUERIES_PER_DPU];
 	uint32_t nb_queries;
-	uint32_t unused;  // Unused field, only there to align size on multiple of 8
+	uint32_t unused; // Unused field, only there to align size on multiple of 8
 };
 
-struct MapIdentifiers {
+struct MapIdentifiers
+{
 	uint64_t data[MAX_NB_QUERIES_PER_DPU];
 	uint8_t read_sizes[MAX_NB_QUERIES_PER_DPU];
 };
 
-struct MapAllArgs {
+struct MapAllArgs
+{
 	MapAllArgs() : dpu_args() { dpu_args.nb_queries = 0; }
 	MapArgs dpu_args;
-	MapIdentifiers identifiers;
+	MapIdentifiers identifiers{};
 };
 
-constexpr uint64_t ENCODE_MAP_RESULT(uint32_t distance, uint32_t position) {
+constexpr uint64_t ENCODE_MAP_RESULT(uint32_t distance, uint32_t position)
+{
 	return (static_cast<uint64_t>(distance) << 32) + position;
 }
 
 constexpr uint32_t DECODE_MAP_RESULT_DISTANCE(uint64_t result) { return static_cast<uint32_t>(result >> 32); }
 constexpr uint32_t DECODE_MAP_RESULT_POSITION(uint64_t result) { return static_cast<uint32_t>(result); }
 
-struct MapResults {
+struct MapResults
+{
 	uint64_t data[MAX_NB_QUERIES_PER_DPU];
 	uint64_t error_positions[MAX_NB_QUERIES_PER_DPU];
 };
@@ -116,7 +127,8 @@ struct MapResults {
 /* -------------------------- Good seed definition -------------------------- */
 
 template <typename T>
-constexpr bool is_good_seed(T t, uint32_t i = 0) {
+constexpr bool is_good_seed(T t, uint32_t i = 0)
+{
 	return (t[i] != t[i + 1]) && (t[i] != t[i + 2]) && (t[i] != t[i + 3]);
 }
 
