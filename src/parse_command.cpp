@@ -14,7 +14,7 @@ cxxopts::ParseResult parse_mapper(int argc, char *argv[])
 
     auto result = options.parse(argc, argv);
 
-    if (result.count("help") > 0 || result.count("reference") == 0 || result.count("ranks") == 0 || result.count("sam") == 0)
+    if (result.count("help") > 0 || result.count("reference") == 0 || result.count("queries") == 0 || result.count("ranks") == 0 || result.count("sam") == 0)
         exit(printf("%s\n", options.help().c_str()));
 
     return result;

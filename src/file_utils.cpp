@@ -14,10 +14,10 @@ bool check_bloom_file_exists(const std::string &bloom_file_path, bool force_crea
     return !force_create_bloom && std::filesystem::exists(bloom_file_path);
 }
 
-std::string validate_reference_file(const std::string &reference_uri)
+std::string validate_file(const std::string &reference_uri)
 {
     if (!std::filesystem::exists(reference_uri))
-        exit(printf("Reference file: %s does not exist\n", reference_uri.c_str()));
+        exit(printf("File: %s does not exist\n", reference_uri.c_str()));
     return reference_uri;
 }
 

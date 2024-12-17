@@ -7,6 +7,9 @@
 
 struct CompactSequence : public std::vector<uint8_t>
 {
+    CompactSequence() = default;
+    CompactSequence(const std::string &seq) { append(seq); }
+
     static constexpr std::array<uint8_t, 4> SHIFT_PUSH = {6, 4, 2, 0};
     static constexpr std::array<char, 8> DECODER = {'A', 'C', 'T', 'G', 'N', 'N', 'N', 'N'};
 

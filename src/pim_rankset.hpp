@@ -195,9 +195,9 @@ public:
 
 	/* -------------------------- Get count information ------------------------- */
 
-	size_t get_nb_dpu() { return _nb_dpu; }
-	PimRankID get_nb_ranks() { return _nb_ranks; }
-	size_t get_nb_dpu_in_rank(PimRankID rank_id) { return _nb_dpu_in_rank[rank_id]; }
+	size_t nb_dpu() { return _nb_dpu; }
+	PimRankID nb_ranks() { return _nb_ranks; }
+	size_t nb_dpu_in_rank(PimRankID rank_id) { return _nb_dpu_in_rank[rank_id]; }
 	size_t get_rank_start_dpu_id(PimRankID rank_id) { return _cum_nb_dpu_in_rank[rank_id]; }
 	PimRankID get_rank_id_of_dpu_id(size_t dpu_id) { return _id2rank[dpu_id]; }
 
@@ -390,7 +390,7 @@ public:
 	T get_reduced_sum_from_rank_sync(PimRankID rank_id, const char *symbol_name, uint32_t symbol_offset,
 									 size_t length)
 	{
-		auto results = std::vector<T>(get_nb_dpu_in_rank(rank_id));
+		auto results = std::vector<T>(nb_dpu_in_rank(rank_id));
 		struct dpu_set_t _it_dpu = dpu_set_t{};
 		uint32_t _it_dpu_idx = 0;
 		DPU_FOREACH(_sets[rank_id], _it_dpu, _it_dpu_idx) { PimAPI::dpu_prepare_xfer(_it_dpu, &results[_it_dpu_idx]); }
@@ -407,7 +407,7 @@ public:
 	std::vector<std::vector<T>> get_vec_data_from_rank_sync(PimRankID rank_id, const char *symbol_name,
 															uint32_t symbol_offset, size_t length)
 	{
-		auto buffer = std::vector<std::vector<T>>(get_nb_dpu_in_rank(rank_id));
+		auto buffer = std::vector<std::vector<T>>(nb_dpu_in_rank(rank_id));
 		struct dpu_set_t _it_dpu = dpu_set_t{};
 		uint32_t _it_dpu_idx = 0;
 		DPU_FOREACH(_sets[rank_id], _it_dpu, _it_dpu_idx)
@@ -429,7 +429,7 @@ public:
 	std::vector<T> get_data_from_rank_sync(PimRankID rank_id, const char *symbol_name, uint32_t symbol_offset,
 										   size_t length)
 	{
-		auto buffer = std::vector<T>(get_nb_dpu_in_rank(rank_id));
+		auto buffer = std::vector<T>(nb_dpu_in_rank(rank_id));
 		struct dpu_set_t _it_dpu = dpu_set_t{};
 		uint32_t _it_dpu_idx = 0;
 		DPU_FOREACH(_sets[rank_id], _it_dpu, _it_dpu_idx) { PimAPI::dpu_prepare_xfer(_it_dpu, &buffer[_it_dpu_idx]); }
@@ -441,7 +441,7 @@ public:
 	void emplace_vec_data_from_rank_sync(PimRankID rank_id, const char *symbol_name, uint32_t symbol_offset,
 										 size_t length, std::vector<std::vector<T>> &buffer)
 	{
-		buffer.resize(get_nb_dpu_in_rank(rank_id));
+		buffer.resize(nb_dpu_in_rank(rank_id));
 		struct dpu_set_t _it_dpu = dpu_set_t{};
 		uint32_t _it_dpu_idx = 0;
 		DPU_FOREACH(_sets[rank_id], _it_dpu, _it_dpu_idx)
@@ -480,7 +480,7 @@ public:
 	{
 		for_each_rank([this](PimRankID rank_id)
 					  {
-			size_t nb_dpus_in_rank = get_nb_dpu_in_rank(rank_id);
+			size_t nb_dpus_in_rank = nb_dpu_in_rank(rank_id);
 			auto uids = std::vector<size_t>(nb_dpus_in_rank, 0);
 			for (size_t i = 0; i < nb_dpus_in_rank; i++) {
 				uids[i] = _get_dpu_uid(rank_id, i);
@@ -513,7 +513,7 @@ private:
 	static dpu_error_t _generic_callback([[maybe_unused]] struct dpu_set_t _set, [[maybe_unused]] uint32_t _id,
 										 void *arg)
 	{
-		auto func = static_cast<std::function<void(void)> *>(arg);
+		auto *func = static_cast<std::function<void(void)> *>(arg);
 		(*func)();
 		delete func;
 		return DPU_OK;
@@ -531,8 +531,8 @@ private:
 	{
 		auto perf_value = get_reduced_sum_from_rank_sync<uint64_t>(rank_id, "perf_counter", 0, sizeof(uint64_t));
 		auto perf_ref_id = get_reduced_sum_from_rank_sync<uint64_t>(rank_id, "perf_ref_id", 0, sizeof(uint64_t));
-		printf("Average perf value is %lu [%lu]\n", perf_value / get_nb_dpu_in_rank(rank_id),
-			   perf_ref_id / get_nb_dpu_in_rank(rank_id));
+		printf("Average perf value is %lu [%lu]\n", perf_value / nb_dpu_in_rank(rank_id),
+			   perf_ref_id / nb_dpu_in_rank(rank_id));
 	}
 };
 
