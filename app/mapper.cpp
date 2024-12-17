@@ -16,6 +16,18 @@ ssize_t compute_dpu_reference_size(size_t reference_size, ssize_t nb_dpu, ssize_
     return dpu_ref_size;
 }
 
+MultiBloomFilter load_bloom_filter(const std::string &reference_file, ssize_t nb_dpu, ssize_t hash_size)
+{
+    printf("Loading bloom filter\n");
+
+    auto bloom_file = generate_bloom_file_path(reference_file, nb_dpu, hash_size);
+    MultiBloomFilter bf{};
+    bf.load_from_file(bloom_file);
+
+    printf("Bloom filter size: %lu\n", bf.get_size2());
+    return bf;
+}
+
 int main(int argc, char *argv[])
 {
     auto parsed = parse_mapper(argc, argv);
@@ -38,10 +50,7 @@ int main(int argc, char *argv[])
     printf("Reference size: %lu\n", ref_size);
     printf("DPU reference size: %lu\n", dpu_ref_size);
 
-    auto bloom_file = generate_bloom_file_path(reference_file, nb_dpu, HASH_SIZE);
-    MultiBloomFilter bf{};
-    bf.load_from_file(bloom_file);
-    printf("Bloom filter size: %lu\n", bf.get_size2());
+    MultiBloomFilter bf = load_bloom_filter(reference_file, nb_dpu, HASH_SIZE);
 
     IndexArgs index_args{};
 
@@ -49,6 +58,8 @@ int main(int argc, char *argv[])
     pim_rankset.wait_all_ranks_done();
 
     printf("Index built\n");
+
+    printf("Start mapping\n");
 
     return 0;
 }
