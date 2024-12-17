@@ -5,7 +5,7 @@ CFLAGS += -Wall -Wextra -Wpedantic -Werror -Wno-unused-parameter -Wno-unused-var
 #add arch flags needed
 CFLAGS += -mpopcnt -msse -msse2 -msse3 -msse4 -msse4.1 -msse4.2 -mavx -mavx2 -mbmi -mbmi2 -fopenmp
 
-LDFLAGS = -lz
+LDFLAGS = -lz `dpu-pkg-config --libs dpu`
 
 # Directories
 SRC_DIR = src
@@ -14,7 +14,7 @@ APP_DIR = app
 BIN_DIR = bin
 BUILD_DIR = build
 
-CFLAGS += -I$(SRC_DIR) -I$(LIB_DIR)/cxxopts/ -I$(LIB_DIR)/org.inria.graal/src
+CFLAGS += -I$(SRC_DIR) -I$(LIB_DIR)/cxxopts/ -I$(LIB_DIR)/org.inria.graal/src -I$(LIB_DIR)/thread-pool `dpu-pkg-config --cflags dpu`
 
 # Targets
 TARGETS = mapper index

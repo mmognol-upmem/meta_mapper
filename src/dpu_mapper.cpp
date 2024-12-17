@@ -1,20 +1,19 @@
 #include <cstdio>
 
 #include "dpu_mapper.hpp"
-#include "pim_common.hpp"
 #include "read_mapper.hpp"
 
-size_t initialize_dpus(PimRankSet<> &pim_rankset, DpuProfile dpu_profile, std::string &binary_name)
+ssize_t initialize_dpus(PimRankSet<> &pim_rankset, DpuProfile dpu_profile, std::string &binary_name)
 {
     pim_rankset.initialize(dpu_profile, std::string(binary_name) + "/short_read_mapping");
     auto nb_dpu = pim_rankset.get_nb_dpu();
     printf("Using %zu real PIM hardware ranks (%zu DPUs)\n", pim_rankset.get_nb_ranks(), nb_dpu);
-    return nb_dpu;
+    return static_cast<ssize_t>(nb_dpu);
 }
 
-void build_index(PimRankSet<> &pim_rankset, CompactReference &reference, size_t dpu_ref_size, ssize_t nb_ranks, size_t nb_dpu, ssize_t overlap)
+void build_index(PimRankSet<> &pim_rankset, CompactReference &reference, size_t dpu_ref_size, ssize_t nb_ranks, size_t nb_dpu, ssize_t overlap, IndexArgs &index_args)
 {
-    uint64_t seq_size = dpu_ref_size;
+    index_args.seq_size = dpu_ref_size;
 
     std::vector<uint64_t> dpu_start_pos;
     dpu_start_pos.reserve(nb_dpu);
@@ -31,7 +30,7 @@ void build_index(PimRankSet<> &pim_rankset, CompactReference &reference, size_t 
         }
         pim_rankset.send_data_to_rank_async<uint8_t>(rank_id, "sequence", 0, buffers,
                                                      CEILN<8>((dpu_ref_size >> 2) * sizeof(uint8_t)));
-        pim_rankset.broadcast_to_rank_async(rank_id, "index_args", 0, &seq_size, sizeof(seq_size));
+        pim_rankset.broadcast_to_rank_async(rank_id, "index_args", 0, &index_args, sizeof(index_args));
         pim_rankset.launch_rank_async(rank_id);
     }
 }
@@ -84,8 +83,7 @@ void post_process_mapping(std::vector<MapResults> rank_map_results, std::vector<
     mapping_data->allocator.release(args); // Give the buffer back as available
 }
 
-void launch_mapping(PimRankSet<> &pim_rankset, PimRankID rank_id, std::vector<MapAllArgs> *args,
-                    MappingWorkerData *mapping_data)
+void launch_mapping(PimRankSet<> &pim_rankset, PimRankID rank_id, std::vector<MapAllArgs> *args, MappingWorkerData *mapping_data)
 {
     pim_rankset.lock_rank(rank_id);
     pim_rankset.send_data_to_rank_async<MapAllArgs, MapArgs>(rank_id, "map_args", 0, *args, sizeof(MapArgs));

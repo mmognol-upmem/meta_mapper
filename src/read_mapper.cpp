@@ -2,7 +2,6 @@
 #include <omp.h>
 #include <algorithm>
 
-#include "pim_shared.hpp"
 #include "read_mapper.hpp"
 #include "signature.hpp"
 

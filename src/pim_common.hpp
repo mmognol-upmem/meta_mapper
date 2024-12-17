@@ -93,8 +93,8 @@ struct MapArgs
 	uint8_t queries[MAX_NB_QUERIES_PER_DPU * (MAX_QUERY_SIZE >> 2)];
 	uint32_t seed_positions[MAX_NB_QUERIES_PER_DPU];
 	uint8_t query_sizes[MAX_NB_QUERIES_PER_DPU];
-	uint32_t nb_queries;
-	uint32_t unused; // Unused field, only there to align size on multiple of 8
+	uint32_t nb_queries{};
+	uint32_t unused{}; // Unused field, only there to align size on multiple of 8
 };
 
 struct MapIdentifiers
@@ -106,7 +106,7 @@ struct MapIdentifiers
 struct MapAllArgs
 {
 	MapAllArgs() : dpu_args() { dpu_args.nb_queries = 0; }
-	MapArgs dpu_args;
+	MapArgs dpu_args{};
 	MapIdentifiers identifiers{};
 };
 

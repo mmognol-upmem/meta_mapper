@@ -4,7 +4,7 @@
 #include "file_utils.hpp"
 #include "parse_command.hpp"
 #include "read_mapper.hpp"
-#include "pim_shared.hpp"
+#include "pim_common.hpp"
 
 ssize_t compute_dpu_reference_size(size_t reference_size, ssize_t nb_dpu, ssize_t overlap)
 {

@@ -12,7 +12,7 @@ extern "C"
 }
 
 #include "dpu_utils.hpp"
-#include "pim_common.hpp"
+#include "../src/pim_common.hpp"
 
 constexpr uint8_t NR_TASKLETS_MASK = (NR_TASKLETS - 1);
 

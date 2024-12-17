@@ -31,9 +31,6 @@ constexpr bool DO_DPU_PERF = true;
 constexpr bool DO_DPU_PERF = false;
 #endif
 
-void __attribute__((optimize(0))) __method_start() {}
-void __attribute__((optimize(0))) __method_end() {}
-
 /* -------------------------------------------------------------------------- */
 /*                                 DPU profile                                */
 /* -------------------------------------------------------------------------- */
@@ -131,7 +128,10 @@ public:
 	template <class T, class R = T>
 	static R &get(T &t)
 	{
-		return t;
+		if constexpr (requires { t.dpu_args; })
+			return t.dpu_args;
+		else
+			return t;
 	}
 };
 
@@ -152,7 +152,7 @@ public:
 
 		// Alloc in parallel
 		std::string profile = dpu_profile.get();
-#pragma omp parallel for num_threads(_nb_threads)
+
 		for (PimRankID rank_id = 0; rank_id < _nb_ranks; rank_id++)
 		{
 			PimAPI::dpu_alloc_ranks(1, profile.c_str(), &_sets[rank_id]);
@@ -219,7 +219,7 @@ public:
 		if (std::filesystem::exists(binary_name))
 			PimAPI::dpu_load(_sets[rank_id], binary_name, NULL);
 		else
-			exit(printf("DPU binary program at %s does not exist", binary_name));
+			exit(printf("DPU binary program at %s does not exist\n", binary_name));
 	}
 	/* ----------------------------- Broadcasts sync ---------------------------- */
 
