@@ -195,7 +195,7 @@ public:
 
 	/* -------------------------- Get count information ------------------------- */
 
-	size_t nb_dpu() { return _nb_dpu; }
+	ssize_t nb_dpu() { return static_cast<ssize_t>(_nb_dpu); }
 	PimRankID nb_ranks() { return _nb_ranks; }
 	size_t nb_dpu_in_rank(PimRankID rank_id) { return _nb_dpu_in_rank[rank_id]; }
 	size_t get_rank_start_dpu_id(PimRankID rank_id) { return _cum_nb_dpu_in_rank[rank_id]; }

@@ -130,7 +130,7 @@ void DpuMapper::dispatch_query_to_dpu(size_t dpu_id, const Read &query, size_t s
     auto &arg = (*args)[i];
 
     // Add item to args
-    memcpy(arg.dpu_args.queries + (MAX_QUERY_SIZE / 4) * arg.dpu_args.nb_queries, query.seq.data(),
+    memcpy(arg.dpu_args.queries + static_cast<size_t>((MAX_QUERY_SIZE / 4) * arg.dpu_args.nb_queries), query.seq.data(),
            query.seq.data_size() * sizeof(uint8_t));
     arg.dpu_args.seed_positions[arg.dpu_args.nb_queries] = start_pos;
     auto size = static_cast<uint8_t>(query.seq.size() - 1);
@@ -145,9 +145,8 @@ void DpuMapper::dispatch_query_to_dpu(size_t dpu_id, const Read &query, size_t s
     }
 }
 
-DpuMapper::DpuMapper(const std::string &reference_path, ssize_t nb_ranks, bool create_bf) : m_rankset(nb_ranks, nb_ranks)
+DpuMapper::DpuMapper(const std::string &reference_path, ssize_t nb_ranks, bool create_bf) : m_rankset(nb_ranks, nb_ranks), m_overlap(400)
 {
-    m_overlap = 400;
     m_rankset.initialize(DpuProfile{}, "./dpu/short_read_mapping");
     printf("Using %zu real PIM hardware ranks (%zu DPUs)\n", m_rankset.nb_ranks(), m_rankset.nb_dpu());
 
