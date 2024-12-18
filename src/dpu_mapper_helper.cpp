@@ -27,13 +27,13 @@ ssize_t adjust_seed_search_range(size_t read_size, const std::array<ssize_t, 2> 
 
 ssize_t min_query_size(ssize_t range, ssize_t delta)
 {
-    return delta + range * 2 + HASH_SIZE;
+    return delta + range * 2 + static_cast<ssize_t>(HASH_SIZE);
 }
 
 ssize_t find_good_pos(const Read &query, ssize_t range, size_t shift)
 {
     std::pair<size_t, size_t> result;
-    size_t start_pos = shift;
+    ssize_t start_pos = static_cast<ssize_t>(shift);
     std::array<uint8_t, 4> bases{
         query.seq[start_pos],
         query.seq[start_pos + 1],
@@ -52,7 +52,7 @@ ssize_t find_good_pos(const Read &query, ssize_t range, size_t shift)
 
 ssize_t get_round_shift(ssize_t shift, size_t read_size, ssize_t min_size)
 {
-    ssize_t diff = shift + min_size - read_size;
+    ssize_t diff = shift + min_size - static_cast<ssize_t>(read_size);
     if (diff >= 0)
         shift = std::max(shift - diff, 0L);
 
